@@ -59,3 +59,17 @@
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  async created() {
+    const res = await this.callApi("get", "/app/get_tags");
+    if (res.status === 200) {
+      this.tags = res.data;
+      console.log(this.tags);
+    } else {
+      this.swr();
+    }
+  },
+}
+</script>

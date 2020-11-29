@@ -11,73 +11,51 @@
                 <h1 class="h4 text-gray-900 mb-4">Create an Account!</h1>
               </div>
               <form class="user">
-                <div class="form-group row">
-                  <div class="col-sm-6 mb-3 mb-sm-0">
-                    <input
-                      type="text"
-                      class="form-control form-control-user"
-                      id="exampleFirstName"
-                      placeholder="First Name"
-                    />
-                  </div>
-                  <div class="col-sm-6">
-                    <input
-                      type="text"
-                      class="form-control form-control-user"
-                      id="exampleLastName"
-                      placeholder="Last Name"
-                    />
-                  </div>
+                <div class="form-group">
+                  <input
+                    v-model="data.name"
+                    type="text"
+                    class="form-control form-control-user"
+                    id="name"
+                    placeholder="Enter Name"
+                  />
                 </div>
                 <div class="form-group">
                   <input
-                    type="email"
+                    v-model="data.email"
+                    type="text"
                     class="form-control form-control-user"
-                    id="exampleInputEmail"
-                    placeholder="Email Address"
+                    id="email"
+                    placeholder="Enter Email Address"
                   />
                 </div>
-                <div class="form-group row">
-                  <div class="col-sm-6 mb-3 mb-sm-0">
-                    <input
-                      type="password"
-                      class="form-control form-control-user"
-                      id="exampleInputPassword"
-                      placeholder="Password"
-                    />
-                  </div>
-                  <div class="col-sm-6">
-                    <input
-                      type="password"
-                      class="form-control form-control-user"
-                      id="exampleRepeatPassword"
-                      placeholder="Repeat Password"
-                    />
-                  </div>
+                <div class="form-group">
+                  <input
+                    v-model="data.password"
+                    type="password"
+                    class="form-control form-control-user"
+                    id="password"
+                    placeholder="Enter Password"
+                  />
                 </div>
-                <a href="login.html" class="btn btn-primary btn-user btn-block">
-                  Register Account
-                </a>
-                <hr />
-                <a href="index.html" class="btn btn-google btn-user btn-block">
-                  <i class="fab fa-google fa-fw"></i> Register with Google
-                </a>
-                <a
-                  href="index.html"
-                  class="btn btn-facebook btn-user btn-block"
+                <Button
+                  type="primary"
+                  class="btn-block"
+                  @click.prevent="register"
+                  :loading="isRegistering"
                 >
-                  <i class="fab fa-facebook-f fa-fw"></i> Register with Facebook
-                </a>
+                  Register Account
+                </Button>
               </form>
-              <hr />
+              <Divider />
               <div class="text-center">
-                <a class="small" href="forgot-password.html"
-                  >Forgot Password?</a
+                <router-link to="forgot-password" class="small"
+                  >Forgot Password?</router-link
                 >
               </div>
               <div class="text-center">
-                <a class="small" href="login.html"
-                  >Already have an account? Login!</a
+                <router-link to="login" class="small"
+                  >Already have an account? Login!</router-link
                 >
               </div>
             </div>
@@ -87,3 +65,59 @@
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  data() {
+    return {
+      isRegistering: false,
+      data: {
+        name: "",
+        email: "",
+        password: "",
+      },
+    };
+  },
+  methods: {
+    async register() {
+      this.isRegistering = true;
+      if (this.data.name.trim() == "") {
+        this.isRegistering = false;
+        return this.e("Name is required.");
+      }
+      if (this.data.email.trim() == "") {
+        this.isRegistering = false;
+        return this.e("Email is required.");
+      }
+      if (this.data.password.trim() == "") {
+        this.isRegistering = false;
+        return this.e("Password is required.");
+      }
+
+      const res = await this.callApi("post", "register", this.data);
+      if (res.status === 200 && res.data.code === 200) {
+        if (res.data.messages) {
+          for (const key in res.data.messages) {
+            this.s(res.data.messages[key]);
+          }
+        } else {
+          this.s("Account Creation Successful.");
+        }
+
+        this.data.name = "";
+        this.data.email = "";
+        this.data.password = "";
+      } else {
+        if (res.data.messages) {
+          for (const key in res.data.messages) {
+            this.e(res.data.messages[key]);
+          }
+        } else {
+          this.swr();
+        }
+      }
+      this.isRegistering = false;
+    },
+  },
+};
+</script>

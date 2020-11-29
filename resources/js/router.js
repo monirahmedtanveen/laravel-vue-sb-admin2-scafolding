@@ -8,6 +8,8 @@ import ForgotPassword from './components/authentication/ForgotPassword'
 import Dashboard from './components/views/Dashboard'
 import Categories from './components/views/Categories'
 
+import store from './store/store'
+
 Vue.use(Router)
 
 const routes = [
@@ -16,16 +18,43 @@ const routes = [
         path: '/login',
         name: 'login',
         component: Login,
+        beforeEnter: (to, from, next) => {
+            if (store.getters['auth/authenticated']) {
+                return next({
+                    name: 'dashboard'
+                })
+            }
+
+            next()
+        }
     },
     {
         path: '/signup',
         name: 'signup',
         component: Signup,
+        beforeEnter: (to, from, next) => {
+            if (store.getters['auth/authenticated']) {
+                return next({
+                    name: 'dashboard'
+                })
+            }
+
+            next()
+        }
     },
     {
         path: '/forgot-password',
         name: 'forgotpassword',
         component: ForgotPassword,
+        beforeEnter: (to, from, next) => {
+            if (store.getters['auth/authenticated']) {
+                return next({
+                    name: 'dashboard'
+                })
+            }
+
+            next()
+        }
     },
 
     // View Page Routes 
@@ -33,12 +62,30 @@ const routes = [
         path: '/',
         name: 'dashboard',
         component: Dashboard,
+        beforeEnter: (to, from, next) => {
+            if (!store.getters['auth/authenticated']) {
+                return next({
+                    name: 'login'
+                })
+            }
+
+            next()
+        }
     },
     {
         path: '/categories',
         name: 'categories',
         component: Categories,
-    }
+        beforeEnter: (to, from, next) => {
+            if (!store.getters['auth/authenticated']) {
+                return next({
+                    name: 'login'
+                })
+            }
+
+            next()
+        }
+    },
 ]
 
 export default new Router({
